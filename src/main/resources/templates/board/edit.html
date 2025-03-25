@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{layouts/layout1}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>게시글 수정</title>
+    <style>
+        .write{
+
+ position:relative;
+}
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="write">
+        <h1>게시글 수정</h1>
+
+<form th:action="@{/board/edit/{id}(id=${post.number})}" method="post">
+
+    <!-- 여기에서 id를 number로 변경 -->
+    <input type="hidden" id="number" th:value="${post.number}"/>
+    <label for="subject">제목</label>
+    <input type="text" id="subject" style="width: 550px" th:value="${post.subject}"/ ><p></p>
+
+    <label for="name">작성자</label>
+    <input type="text" id="name" th:value="${post.name}" /><p></p>
+    <label for="password">비밀번호</label>
+    <input type="password" id="password"/><br><p></p>
+
+    <label for="content">내용</label><p></p>
+    <textarea id="content" rows="10" cols="80" th:text="${post.content}"></textarea><p></p>
+    <p></p>
+    <button type="button" onclick="updatePost()">수정</button>
+</form>
+
+    </div>
+<script>
+
+    function updatePost() {
+     const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+     const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+     const postNumber = document.getElementById("number").value;
+
+     const postData = {
+         subject: document.getElementById("subject").value,
+         content: document.getElementById("content").value,
+         name: document.getElementById("name").value,
+         password: document.getElementById("password").value // 비밀번호 추가
+     };
+
+     fetch(`/board/${postNumber}/edit`, {
+         method: "POST",
+         headers: {
+             "Content-Type": "application/json",
+             [csrfHeader]: csrfToken
+         },
+         body: JSON.stringify(postData)
+     })
+     .then(response => {
+         if (response.ok) {
+             alert("게시글이 수정되었습니다.");
+             window.location.href = "/board/list";
+         } else if (response.status === 401) {
+             alert("비밀번호가 일치하지 않습니다.");
+         } else {
+             throw new Error("게시글 수정 실패");
+         }
+     })
+     .catch(error => console.error("Error:", error));
+ }
+
+</script>
+</div>
+</body>
+</html>

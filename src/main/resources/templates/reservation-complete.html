@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>예약 확인</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script>
+    Kakao.init('c80c77f92cd43783856d8c5b2d3d9fc1'); // 여기 YOUR_APP_KEY를 발급받은 JavaScript 키로 대체
+    console.log(Kakao.isInitialized()); // SDK 초기화 여부 확인 (true면 성공)
+  </script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f8;
+      text-align: center;
+    }
+    header {
+      background-color: #3f51b5;
+      color: white;
+      padding: 20px 0;
+      font-size: 24px;
+    }
+    .container {
+      margin: 30px auto;
+      padding: 20px;
+      max-width: 600px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .container h2 {
+      color: #333;
+    }
+    .container p {
+      font-size: 16px;
+      color: #555;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #ffdd00;
+      color: black;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .btn:hover {
+      background-color: #ffd700;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+<header>
+  예약 확인 페이지
+</header>
+
+<div class="container">
+  <h2>예약이 완료되었습니다!</h2>
+  <!-- 서버에서 예약 정보 (날짜, 장소) 동적으로 출력 -->
+  <p><strong>예약 날짜:</strong> <span id="reservationDate">2025년 1월 9일 오후 3시</span></p>
+  <p><strong>예약 장소:</strong> <span id="reservationLocation">부평점</span></p>
+  <p>예약 상세 정보를 카카오톡으로 공유해보세요.</p>
+  <!-- 카카오톡 공유 버튼 -->
+  <a href="#" class="btn" onclick="sendReservationMessage()">카카오톡으로 공유하기</a>
+</div>
+
+<footer>
+  &copy; 2025 예약 서비스
+</footer>
+
+<script>
+  // 카카오톡 메시지 템플릿 구성 및 전송
+  function sendReservationMessage() {
+    const reservationDate = document.getElementById('reservationDate').textContent;
+    const reservationLocation = document.getElementById('reservationLocation').textContent;
+
+    Kakao.Link.sendDefault({
+      objectType: 'feed', // 메시지 유형: 피드 형식
+      content: {
+        title: '예약이 완료되었습니다!', // 메시지 제목
+        description: `예약 날짜: ${reservationDate}, 예약 장소: ${reservationLocation}`, // 동적으로 예약 날짜와 장소
+        imageUrl: 'https://localhost:8081/your-image.jpg', // 이미지 URL (선택 사항)
+        link: {
+          mobileWebUrl: 'https://localhost:8081/reservation-details', // 모바일 URL
+          webUrl: 'https://localhost:8081/reservation-details' // PC URL
+        }
+      },
+      buttons: [
+        {
+          title: '예약 상세 보기', // 버튼 텍스트
+          link: {
+            mobileWebUrl: 'https://localhost:8081/reservation-details', // 모바일 URL
+            webUrl: 'https://localhost:8081/reservation-details' // PC URL
+          }
+        }
+      ]
+    });
+  }
+</script>
+</body>
+</html>

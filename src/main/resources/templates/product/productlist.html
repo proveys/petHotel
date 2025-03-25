@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<!-- 사용자 CSS 추가 -->
+<th:block layout:fragment="css">
+  <style>
+    .card {
+      width: 250px;
+      height: 400px;
+      overflow: hidden;
+      margin: 15px 10px 15px 10px;
+    }
+    .card-img-top {
+      width: 180px;
+      height: 180px;
+      overflow: hidden;
+    }
+    .card-text {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    a:hover {
+      text-decoration: none;
+    }
+    .center {
+      text-align: center;
+    }
+  </style>
+</th:block>
+
+<div layout:fragment="content">
+
+  <input type="hidden" name="searchQuery" th:value="${itemSearchDto.searchQuery}">
+  <div th:if="${not #strings.isEmpty(itemSearchDto.searchQuery)}" class="center">
+    <p class="h3 font-weight-bold" th:text="${itemSearchDto.searchQuery} + ' 검색결과'"></p>
+  </div>
+  <!--<div class="container text-center">-->
+  <div class="container text-center" style="width:620px;">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5" style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+      <th:block th:each="item, status: ${items.getContent()}">
+       <!-- <div class="col" style="padding: 10px; flex: 0 0 19%;">  한 줄에 5개씩 보여주기 위해 19%로 설정 -->
+          <div class="col" style="padding: 10px; flex: 0 0 30%;">
+          <div class="card" style="width: 100%; max-width: 250px; height: 400px;">
+            <a th:href="'/item/' + ${item.id}" class="text-dark">
+              <img th:src="${item.imgUrl}" class="card-img-top" th:alt="${item.itemNm}" height="400">
+              <div class="card-body">
+                <h4 class="card-title">
+                  [[${item.itemNm}]]
+                </h4>
+                <p class="card-text">[[${item.itemDetail}]]</p>
+                <h3 class="card-title text-danger">
+                  [[${item.price}]]원
+                </h3>
+              </div>
+            </a>
+          </div>
+        </div>
+      </th:block>
+    </div>
+  </div>
+
+  <div th:with="start=${(items.number/maxPage)*maxPage +1},
+        end=(${(items.totalPages==0) ? 1 : (start + (maxPage-1) < items.totalPages ?
+        start + (maxPage - 1) : items.totalPages)})">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" th:classappend="${items.number eq 0}?'disabled'">
+        <!-- 이전 페이지 링크 수정 (아래 시작을 / 로만 해서 메인으로 돌아가는 오류 발생)-->
+        <a th:href="@{'/product' + '?searchQuery=' + ${itemSearchDto.searchQuery} + '&page=' + ${items.number - 1}}"
+           aria-label="Previous" class="page-link">
+          <span aria-hidden="true">이전</span>
+        </a>
+      </li>
+
+      <!-- 페이지 번호 링크 -->
+      <li class="page-item" th:each="page: ${#numbers.sequence(start, end)}"
+          th:classappend="${items.number eq page - 1}?'active':''">
+        <a th:href="@{'/product' + '?searchQuery=' + ${itemSearchDto.searchQuery} + '&page=' + ${page - 1}}"
+           th:inline="text" class="page-link">[[${page}]]</a>
+      </li>
+
+      <li class="page-item" th:classappend="${items.number + 1 ge items.totalPages}?'disabled'">
+        <!-- 다음 페이지 링크 수정 -->
+        <a th:href="@{'/product' + '?searchQuery=' + ${itemSearchDto.searchQuery} + '&page=' + ${items.number + 1}}"
+           aria-label="Next" class="page-link">
+          <span aria-hidden="true">다음</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<th:block layout:fragment="script">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+
+</th:block>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+  <meta name="user-email" th:content="${#authentication.name}" /> <!-- 로그인 된 사용자 이메일-->
+
+
+
+  <title>마이 페이지</title>
+  <style>
+
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+<h1> 마이 페이지</h1>
+
+  <!-- 예약 목록-->
+
+  <table id="reservation-table">
+
+    <thead>
+      <tr>
+        <th>예약 ID</th>
+        <th>날짜</th>
+        <th>시간</th>
+        <th>취소</th>
+      </tr>
+    </thead>
+  </table>
+
+
+
+</body>
+
+</html>

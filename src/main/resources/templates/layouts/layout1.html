@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta charset="UTF-8">
+    <title>애견 호텔</title>
+    <!-- CSS only -->
+    <style>
+        .ch{
+ position:relative;
+      }
+
+    #chatContainer {  justify-content: center; /* 가로 방향 중앙 정렬 */
+    display:none;
+        align-items: center; /* 세로 방향 중앙 정렬 */
+        position:fixed;
+        bottom:34%;
+        left:80%;
+        width: 280px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        z-index:1000;
+    }
+
+    #chatHeader {
+        background-color: #f05a24;
+        color: white;
+        padding: 10px 15px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    #chatbox {
+        height: 400px;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+    }
+
+    #chatbox p {
+        margin: 10px 0;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    #chatbox p strong {
+        margin-right: 8px;
+    }
+
+    #chatbox .user {
+        justify-content: flex-end;
+    }
+
+    #chatbox .user strong {
+        color: #007bff;
+    }
+
+    #chatbox .bot {
+        justify-content: flex-start;
+    }
+
+    #chatbox .bot strong {
+        color: #4bc8ee;
+    }
+
+    #chatFooter {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background-color: #fff;
+    }
+
+    #userInput {
+        flex: 1;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 8px;
+    }
+
+    #sendButton {
+        padding: 10px 15px;
+        font-size: 1rem;
+        background-color: #4bc8ee;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #sendButton:hover {
+        background-color: #d94e20;
+    }
+
+
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dongle&family=Gamja+Flower&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link th:href="@{/css/layout1.css}" rel="stylesheet">
+
+    <!-- JS, Popper.js and JQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <th:block layout:fragment="script"></th:block>
+  <th:block layout:fragment="css"></th:block>
+</head>
+<body>
+
+
+<div th:replace="~{fragments/header::header}"></div>
+<div th:replace="~{/fragments/nav.html :: fragment-nav}">
+
+</div>
+<div class="ch">
+    <div id="chatContainer">
+        <div id="chatHeader">챗봇 상담사</div>
+
+        <div id="chatbox">
+            <!-- 채팅 메시지가 표시되는 영역 -->
+        </div>
+
+        <div id="chatFooter">
+            <input type="text" id="userInput" placeholder="메시지를 입력하세요" />
+            <button id="sendButton">전송</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    // 챗봇 표시/숨기기 함수
+    window.toggleChatbot = function () {
+        const chatContainer = document.getElementById("chatContainer");
+        if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+            chatContainer.style.display = "block";
+        } else {
+            chatContainer.style.display = "none";
+        }
+    };
+});
+
+   /* JavaScript 코드 */
+document.addEventListener("DOMContentLoaded", function () {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    async function sendMessage() {
+        const userInputField = document.getElementById("userInput");
+        const userInput = userInputField.value.trim();
+
+        if (!userInput) {
+            alert("메시지를 입력하세요.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/chatbot/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    [csrfHeader]: csrfToken,
+                },
+                body: JSON.stringify({ message: userInput }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.text();
+            const chatbox = document.getElementById("chatbox");
+
+            // 사용자 메시지 추가
+            chatbox.innerHTML += `<p class="user"><strong>사용자:</strong> ${userInput}</p>`;
+            // 챗봇 응답 추가
+            chatbox.innerHTML += `<p class="bot"><strong>챗봇:</strong> ${data}</p>`;
+
+            // 스크롤을 맨 아래로 이동
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            // 입력 필드 초기화
+            userInputField.value = "";
+        } catch (error) {
+            const chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<p class="bot"><strong>에러:</strong> ${error.message}</p>`;
+        }
+    }
+
+    // 버튼 클릭 및 Enter 키 이벤트 설정
+    const sendButton = document.getElementById("sendButton");
+    const userInputField = document.getElementById("userInput");
+
+    sendButton.addEventListener("click", sendMessage);
+    userInputField.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    });
+});
+
+
+</script>
+<div layout:fragment="content" class="content">
+
+
+
+</div>
+<div th:replace="~{fragments/footer::footer}"></div>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<!-- 사용자 CSS 추가 -->
+
+<th:block layout:fragment="css">
+  <style>
+    .carousel-inner > .item{
+    height : 350px;
+    }
+    .margin{
+      margin-bottom : 30px;
+    }
+    .banner{
+    height : 300px;
+    position : absolute; top:0, left: 0;
+    width : 100%;
+    height : 100%;
+    }
+    .card-text{
+    text-overflow : ellipsis;
+    white-space : nowrap;
+    overflow : hidden;
+    }
+    a:hover{
+      text-decoration: none;
+    }
+    .center{
+      text-align:center;
+    }
+
+    #info {
+    position: relative;
+    width: 100%;
+    padding: 100px 0px 140px;
+}
+    #info .info-in {
+        padding: 0px 20px;
+        width: 100%;
+    }
+
+    #info .info-in {
+    margin: 0px auto;
+    padding: 0px;
+    width: 1180px;
+    text-align: center;
+}
+
+    #info .info-in > img {
+    margin-bottom: 10px;
+}
+    img {
+    overflow-clip-margin: content-box;
+    overflow: clip;
+}
+
+/* 고정된 텍스트 스타일 */
+.carousel-caption.fixed-text {
+    position: absolute;
+    top: 50%;
+
+    transform: translateY(-50%); /* 수직 중앙 정렬 */
+    z-index: 9999; /* 다른 슬라이드보다 우선적으로 보여지게 설정 */
+    text-align: left;
+}
+
+/* 텍스트와 버튼을 묶는 컨테이너 */
+.carousel-caption.fixed-text .text-content {
+    color: #FFF;
+}
+
+/* 제목 스타일 */
+.carousel-caption.fixed-text .text-content h1 {
+    font-family: 'Montserrat-Black';
+    font-size: 60px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    line-height: 60px;
+    color: #FFF;
+}
+
+/* 텍스트 스타일 */
+.carousel-caption.fixed-text .text-content p {
+    font-family: 'Roboto';
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFF;
+}
+
+/* 버튼 스타일 */
+.carousel-caption.fixed-text .text-content .button {
+    margin-top: 35px;
+    width: 200px;
+    height: 65px;
+    background: #FFF;
+    border-radius: 7px;
+    text-align: center;
+    line-height: 65px;
+    letter-spacing: 2px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .4s;
+    display: inline-block; /* 버튼만 클릭 가능하도록 설정 */
+}
+
+/* 버튼 호버 시 효과 */
+.carousel-caption.fixed-text .text-content .button:hover {
+    color: #FFF;
+    background: #343434;
+}
+
+/* 슬라이드 이미지 스타일 */
+.carousel-inner .carousel-item img {
+    width: 95%; /* 화면의 95%를 차지하도록 설정 */
+    height: auto; /* 높이는 자동으로 비율 맞춰 조정 */
+    object-fit: cover; /* 비율을 유지하면서 배경을 완전히 채움 */
+    margin: 0 auto; /* 이미지가 중앙에 위치하도록 설정 */
+}
+
+
+
+
+.carousel-item img {
+  width: 100%; /* 이미지를 부모 요소에 맞게 확장 */
+  height: 100%; /* 이미지의 높이를 100%로 설정 */
+  object-fit: cover; /* 이미지 비율을 유지하면서 공간을 가득 채우기 */
+}
+
+ .carousel-caption {
+    position: absolute;
+    right: 10%;
+    top: 25%;
+    bottom: 1.25rem;
+    left: 10%;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    color: #fff;
+    text-align: center;
+}
+
+  </style>
+</th:block>
+
+<div layout:fragment="content">
+
+
+
+<!--  <div class="text on">
+<h1>"With Your
+<br>
+  Precious"
+</h1>
+    <h3>A place where a dog lover stay</h3>
+    <p>반려견을 사랑하는 사람들의 공간</p>
+    <a href="#" target="_blank"><div class="button">RESERVATION</div></a>
+    </div>
+-->
+  <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-caption fixed-text">
+      <div class="text-content">
+        <h1>"With Your<br>Precious"</h1>
+        <p>반려견을 사랑하는 사람들의 공간</p>
+        <a href="/reservation/view" target="_blank"><div class="button">RESERVATION</div></a>
+      </div>
+    </div>
+
+    <div class="carousel-inner">
+      <!-- 첫 번째 슬라이드 -->
+      <div class="carousel-item active">
+        <img src="https://blog.kakaocdn.net/dn/cMgaZ0/btqYpXFxqZM/ksAMtAPmwvHk78W6lZ6F9K/img.jpg" width="1200" height="960" alt="...">
+      </div>
+
+      <!-- 두 번째 슬라이드 -->
+      <div class="carousel-item">
+        <img src="https://mblogthumb-phinf.pstatic.net/MjAxODAyMDNfMTY4/MDAxNTE3NjMwODAzOTU3.1HdfxdCy3g0E3kqU5TNpAO6hSkbZSBAFeBt5YdeZtL0g.HlTyyOHbxkURIozaWQ0hgoxT3k4IMTcaH_7biKrUe80g.JPEG.knicjin/wallpaper_10.jpg?type=w800" width="1200" height="960" class="d-block" alt="...">
+      </div>
+
+      <!-- 세 번째 슬라이드 -->
+      <div class="carousel-item">
+        <img src="https://shbmirae.cafe24.com/fileupload/board/2021_12_17/02.jpg" width="1200" height="960" class="d-block" alt="...">
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <section id="info">
+
+
+    <div class="info-in">
+      <h1>호텔을 소개합니다</h1>
+
+      <img src="http://www.seorakgarden.com/img/sub1/m/image3.jpg" class="image">
+      <p>소중한 반려견과의 소중한 추억을 쌓을 수 있는 이곳, 더조은 애견 호텔을 찾아주셔서 감사합니다.<br>
+
+        사랑하는 사람과 함께, 가족과 함께, 반려견과의 추억을 한아름 안아가세요.</p>
+
+</div>
+    </section>
+  </div>
+
+
+
+
+
+</html>

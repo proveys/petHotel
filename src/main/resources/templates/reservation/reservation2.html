@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+
+  <title>객실 선택 및 결제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+    .header {
+        background-color: #ffffff;
+        border-bottom: 2px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header a {
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 16px;
+        color: #333;
+        padding-bottom: 5px;
+    }
+    .header a.active {
+        border-bottom: 2px solid #ff4081; /* 분홍색 밑줄 */
+        color: #ff4081;
+    }
+    .container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .room-card {
+        display: flex;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        background-color : #fff;
+        box-shadow : 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .room-card img {
+        width: 150px;
+        height: auto;
+        object-fit : cover;
+        border-right : 1px solid #ddd;
+    }
+    .room-info {
+        padding: 15px;
+        flex: 1;
+        position: relative;
+    }
+
+    .room-info h5 {
+      font-size : 18px;
+      font-weight: bold;
+      margin-bottom : 10px;
+    }
+
+    .room-info p {
+      margin : 5px 0;
+      font-size: 14px;
+      color : #555;
+    }
+
+    .guest-input {
+      width : 40px;
+      text-align : center;
+      border: 1px solid #ddd;
+      border-radius : 4px;
+      padding : 5px;
+    }
+
+
+    .room-price {
+        text-align: right;
+        padding: 15px;
+        display : flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+    }
+
+    .room-price p {
+      margin : 5px 0;
+      font-size : 16px;
+      font-weight : bold;
+      color : #ff4081;
+    }
+
+    .btn-primary {
+      background-color : #ff4081;
+      color : white;
+      border : none;
+      padding : 10px;
+      border-radius : 5px;
+      font-size : 14px;
+      font-weight : bold;
+      transition : all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+    background-color: #e63971;
+    }
+
+    .payment-section {
+      position: sticky;
+      bottom: 0;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-section h5 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .payment-section .btn-next {
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .payment-section .btn-next:hover {
+      background-color: #e63971;
+    }
+
+    .btn-pink {
+        background-color: #ff4081;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="header">
+    <h1>예약 시스템</h1>
+    <nav>
+      <a href="/reservation/list/view">예약현황</a>
+      <a href="#" class="active">예약하기</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <h2>애견펜션 & 카페</h2>
+    <p>주소: 인천 부평구 어디기 어디 <button class="btn btn-link">지도 보기</button></p>
+    <p>연락처: 010-1234-5678</p>
+    <p>결제 방법: 카카오 페이</p>
+
+    <hr>
+
+    <h3>숙박 기간</h3>
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="w-25">
+        <label for="checkin">입실일</label>
+        <input type="date" id="checkin" class="form-control">
+      </div>
+      <button id="nights-button" class="btn btn-pink">0박</button>
+      <div class="w-25">
+        <label for="checkout">퇴실일</label>
+        <input type="date" id="checkout" class="form-control">
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="container">
+    <h3>객실 선택</h3>
+
+    <!-- Room 101 -->
+    <div class="room-card">
+      <img src="#" alt="101호">
+      <div class="room-info">
+        <h5>101호</h5>
+        <p>기준 2명, 최대 3명<br>거실+객실 / 16평</p>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">성인</label>
+          <input type="number" id="adult-101" class="guest-input" min="0" max="3" value="0">
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">아동</label>
+          <input type="number" id="child-101" class="guest-input" min="0" max="3" value="0">
+        </div>
+        <button class="btn btn-primary w-100" onclick="selectRoom('101')">선택</button>
+      </div>
+      <div class="room-price">
+        <p>234,000원</p>
+      </div>
+    </div>
+
+    <!-- Room 102 -->
+    <div class="room-card">
+      <img src="#" alt="102호">
+      <div class="room-info">
+        <h5>102호</h5>
+        <p>기준 4명, 최대 5명<br>거실+객실 / 24평</p>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">성인</label>
+          <input type="number" id="adult-102" class="guest-input" min="0" max="5" value="0">
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">아동</label>
+          <input type="number" id="child-102" class="guest-input" min="0" max="5" value="0">
+        </div>
+        <button class="btn btn-primary w-100" onclick="selectRoom('102')">선택</button>
+      </div>
+      <div class="room-price">
+        <p>324,000원</p>
+      </div>
+    </div>
+
+    <!-- Room 201 -->
+    <div class="room-card">
+      <img src="#" alt="201호">
+      <div class="room-info">
+        <h5>201호</h5>
+        <p>기준 2명, 최대 3명<br>거실+객실 / 16평</p>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">성인</label>
+          <input type="number" id="adult-201" class="guest-input" min="0" max="3" value="0">
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">아동</label>
+          <input type="number" id="child-201" class="guest-input" min="0" max="3" value="0">
+        </div>
+        <button class="btn btn-primary w-100" onclick="selectRoom('201')">선택</button>
+      </div>
+      <div class="room-price">
+        <p>234,000원</p>
+      </div>
+    </div>
+
+    <!-- Room 202 -->
+    <div class="room-card">
+      <img src="#" alt="202호">
+      <div class="room-info">
+        <h5>202호</h5>
+        <p>기준 4명, 최대 5명<br>거실+객실 / 24평</p>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">성인</label>
+          <input type="number" id="adult-202" class="guest-input" min="0" max="5" value="0">
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <label class="me-2">아동</label>
+          <input type="number" id="child-202" class="guest-input" min="0" max="5" value="0">
+        </div>
+        <button class="btn btn-primary w-100" onclick="selectRoom('202')">선택</button>
+      </div>
+      <div class="room-price">
+        <p>324,000원</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="payment-section">
+    <h5 id="total-price">총 결제 금액: 0원</h5>
+    <button id="payment-button" class="btn btn-success" onclick="processPayment()">예약하기</button>
+  </div>
+
+  <script>
+    let totalPrice = 0;
+    let selectedRoom = null;
+    let nights = 0;
+    let userId = null;
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+
+  const roomData = {
+      '101': { price: 234000, maxGuests: 3 },
+      '102': { price: 324000, maxGuests: 5 },
+      '201': { price: 234000, maxGuests: 3 },
+      '202': { price: 324000, maxGuests: 5 },
+  };
+
+  function updateGuests(roomId, type, change) {
+      const inputId = `${type}-${roomId}`;
+      const input = document.getElementById(inputId);
+      const newValue = Math.max(0, parseInt(input.value) + change);
+      input.value = newValue;
+
+      const totalGuests =
+          parseInt(document.getElementById(`adult-${roomId}`).value) +
+          parseInt(document.getElementById(`child-${roomId}`).value);
+
+      if (totalGuests > roomData[roomId].maxGuests) {
+          alert(`입실 가능한 최대 인원은 ${roomData[roomId].maxGuests}명입니다.`);
+          input.value = Math.max(0, newValue - change);
+      }
+  }
+
+  function selectRoom(roomId) {
+      selectedRoom = roomId;
+      calculateNights();
+      updateTotalPrice();
+  }
+
+  function calculateNights() {
+      const checkinInput = document.getElementById('checkin');
+      const checkoutInput = document.getElementById('checkout');
+      const nightsButton = document.getElementById('nights-button');
+
+      const checkinDate = new Date(checkinInput.value);
+      const checkoutDate = new Date(checkoutInput.value);
+
+      if (checkinInput.value && checkoutInput.value) {
+          if (checkoutDate <= checkinDate) {
+              nightsButton.textContent = "날짜를 확인하세요";
+              nightsButton.classList.add('btn-warning');
+              nightsButton.classList.remove('btn-pink');
+              return;
+          }
+
+          nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+          nightsButton.textContent = `${nights}박`;
+          nightsButton.classList.add('btn-pink');
+          nightsButton.classList.remove('btn-warning');
+      } else {
+          nightsButton.textContent = "0박";
+          nightsButton.classList.add('btn-warning');
+          nightsButton.classList.remove('btn-pink');
+      }
+
+      if (selectedRoom) {
+          updateTotalPrice();
+      }
+  }
+
+  function updateTotalPrice() {
+      const totalPriceElement = document.getElementById('total-price');
+      if (!selectedRoom || nights === 0) {
+          totalPriceElement.textContent = "총 결제 금액: 0원";
+          totalPrice = 0;
+          return;
+      }
+      totalPrice = roomData[selectedRoom].price * nights;
+      totalPriceElement.textContent = `총 결제 금액: ${totalPrice.toLocaleString()}원`;
+  }
+
+  function fetchUserInfo() {
+      return fetch('/members/user-info')
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('사용자 정보를 가져오지 못했습니다.');
+              }
+              return response.json();
+          })
+          .then(userInfo => {
+              userId = userInfo.id;
+              console.log("로그인한 사용자 ID:", userId);
+          })
+          .catch(error => {
+              console.error("사용자 정보 요청 중 오류 발생:", error);
+              alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+          });
+  }
+
+  function processPayment() {
+      var token = $("meta[name='_csrf']").attr("content");
+      var header = $("meta[name='_csrf_header']").attr("content");
+
+      var checkinDate = $("#checkin").val();
+      var checkoutDate = $("#checkout").val();
+      var nights = Math.ceil((new Date(checkoutDate) - new Date(checkinDate)) / (1000 * 60 * 60 * 24));
+      var roomId = selectedRoom;
+      var totalPrice = roomData[roomId].price * nights;
+
+      if (!roomId || nights <= 0) {
+          alert("객실과 숙박 기간을 올바르게 선택하세요.");
+          return;
+      }
+
+      var IMP = window.IMP;
+      IMP.init('imp63523172'); // 아임포트 가맹점 코드
+
+      IMP.request_pay({
+          pg: "kakaopay.TC0ONETIME",
+          merchant_uid: 'reservation_' + new Date().getTime(),
+          name: `객실 ${roomId} 예약 (${nights}박)`,
+          amount: totalPrice,
+          buyer_email: userId + '@example.com', // 예시 이메일
+          buyer_name: '구매자 이름', // 구매자 이름
+          buyer_tel: '010-1234-5678' // 구매자 전화번호
+      }, function (rsp) {
+          if (rsp.success) {
+              var orderData = {
+                  userId: userId,
+                  roomId: roomId,
+                  checkinDate: checkinDate,
+                  checkoutDate: checkoutDate,
+                  nights: nights,
+                  adultCount: parseInt($("#adult-" + roomId).val()), // 괄호 닫음
+                  childCount: parseInt($("#child-" + roomId).val()), // 괄호 닫음
+                  imp_uid: rsp.imp_uid,
+                  amount: totalPrice
+              };
+
+              $.ajax({
+                  url: "/reservation/payment",
+                  type: "POST",
+                  contentType: "application/json",
+                  data: JSON.stringify(orderData),
+                  beforeSend: function (xhr) {
+                      console.log("CSRF 헤더 : ", header);
+                      console.log("CSRF 토큰 : ", token);
+
+                      xhr.setRequestHeader(header, token);
+
+                  },
+                  success: function (response) {
+                      console.log("서버로부터 성공 응답을 받았습니다.");
+                      alert("예약 및 결제가 완료되었습니다.");
+                      location.href = '/reservation/reservation-complete';
+                  },
+                  error: function (request, status, error) {
+                      alert(" gateWay Search code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      if (request.status === 401) {
+                          alert("로그인 후 이용해주세요.");
+                          location.href = '/members/login';
+                      } else {
+                          alert("결제는 성공했으나 예약 처리가 실패했습니다.");
+                      }
+                  }
+              });
+          } else {
+              alert("결제 실패: " + rsp.error_msg);
+          }
+      });
+  }
+
+
+  let isSubmitting = false; // 중복 요청 방지 플래그
+
+  document.addEventListener('DOMContentLoaded', function () {
+      fetchUserInfo();
+
+      const checkinInput = document.getElementById('checkin');
+      const checkoutInput = document.getElementById('checkout');
+      const paymentButton = document.getElementById('payment-button');
+
+      if (!checkinInput || !checkoutInput || !paymentButton) {
+          console.error("필수 요소가 누락되었습니다. HTML 구조를 확인하세요.");
+          return;
+      }
+
+      checkinInput.addEventListener('change', calculateNights);
+      checkoutInput.addEventListener('change', calculateNights);
+
+      // 중복 리스너 방지
+      paymentButton.removeEventListener('click', processPayment);
+      paymentButton.addEventListener('click', () => {
+          if(!isSubmitting) {
+              isSubmitting = true;  // 중복 클릭 방지
+              processPayment(); // 올바른 함수 호출
+              isSubmitting = false; // 플래그 초기화
+          }
+      });
+  });
+
+  </script>
+</div>
+</body>
+</html>

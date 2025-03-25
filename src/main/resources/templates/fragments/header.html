@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="header">
+    <style>
+        .navbar {
+
+    left: 0;
+    width: 100%;
+    padding: 5px 0;
+            background-color: rgba(212, 167, 217, 0.55) !important;}
+
+.header .contents{width:980px; margin:0 auto;height:60px;}
+		.header_content .contents{display:flex; justify-content:space-between; padding:30px 6px 25px 1450px;}
+
+		.header_content .contents h1 a{display:block; float:left; height:100%;}
+		.header_content .contents h1 a img{display:block; width:auto; height:100%;}
+		.header_content .contents h1 span{font-weight:300; font-size:16px; color:#222; letter-spacing:0.313em; line-height:1.500em;}
+		.header_content .contents .memberInfo_wrap{display:flex; align-items:center;}
+		.header_content .contents .memberInfo_wrap li{margin-left:12px; margin-top:2px;}
+		.header_content .contents .memberInfo_wrap li:first-child{margin-left:0;}
+		.header_content .contents .memberInfo_wrap li a{display:block; position:relative; padding-bottom:5px; float:right;}
+
+    </style>
+
+
+
+        <div class="header_content">
+            <div class="contents">
+
+                <a href="/"><img src="https://yimgf-thinkzon.yesform.com/docimgs/public/1/65/64912/64911399.jpg" style="position:absolute; left:45%; width: 150px; height: 65px;" ></a>
+                <ul class="memberInfo_wrap">
+
+
+                    <li  sec:authorize="isAnonymous()">
+                        <a href="/members/login"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-lock" viewBox="0 0 16 16">
+                            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m0 5.996V14H3s-1 0-1-1 1-4 6-4q.845.002 1.544.107a4.5 4.5 0 0 0-.803.918A11 11 0 0 0 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664zM9 13a1 1 0 0 1 1-1v-1a2 2 0 1 1 4 0v1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zm3-3a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1"/>
+                        </svg>
+                            로그인</a>
+                    </li>
+
+                    <li sec:authorize="isAuthenticated()">
+                        <a href="/members/logout"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-lock" viewBox="0 0 16 16">
+                            <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m0 5.996V14H3s-1 0-1-1 1-4 6-4q.845.002 1.544.107a4.5 4.5 0 0 0-.803.918A11 11 0 0 0 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664zM9 13a1 1 0 0 1 1-1v-1a2 2 0 1 1 4 0v1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zm3-3a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1"/>
+                        </svg>
+                            로그 아웃</a>
+                    </li>
+
+                <li sec:authorize="permitAll">
+                <a href="/members/new">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-add" viewBox="0 0 16 16">
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0m-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+                            <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z"/>
+                        </svg>
+                        <span>회원가입</span></a></li>
+
+
+        
+                <li class="nav-item" sec:authorize="permitAll">
+                    <a href="/chat/start">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-headset" viewBox="0 0 16 16">
+                            <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/>
+                        </svg>
+                        <span>고객센터</span></a></li>
+            </ul>
+                    </div>
+            </div>
+    <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
+
+        <div class="container-fluid">
+
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarTogglerDemo03"
+                    aria-controls="navbarTogglerDemo03"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" id="first" href="/" style="color: #00008B !important;">애견 호텔</a>
+
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" sec:authorize="hasRole('ADMIN')" href="/admin/adminPage">관리자 페이지</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="permitAll">
+                        <a class="nav-link" href="/board/list">게시판</a>
+                    </li>
+
+                    <li class="nav-item" sec:authorize="permitAll">
+                        <a class="nav-link" href="/product">상품목록</a>
+                    </li>
+
+                    <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <a class="nav-link" href="/admin/item/new">상품 등록</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
+                        <a class="nav-link" href="/admin/items">상품 관리</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" href="/crawling">상품 불러오기</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" href="/cart">장바구니</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" href="/orders">구매이력</a>
+                    </li>
+
+
+                </ul>
+
+
+            </div>
+        </div>
+
+    </nav>
+</div>
+</html>

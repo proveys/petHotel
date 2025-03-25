@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 작성</title>
+
+    <style>
+        /* 전체 페이지 스타일 */
+               body {
+                   font-family: Arial, sans-serif;
+                   margin: 0;
+                   padding: 0;
+                   background-color: #f9f9f9;
+               }
+
+               /* 중앙 정렬 및 타이틀 스타일 */
+               h1.text-center {
+                   text-align: center;
+                   font-size: 2rem;
+                   margin: 20px 0;
+               }
+
+
+               /* 테이블 스타일 */
+               table {
+                   width: 80%;
+                   margin: 0 auto;
+                   border-collapse: collapse;
+                   background-color: white;
+               }
+
+               table thead th {
+                   background-color: #f4f4f4;
+                   font-weight: bold;
+                   border: 1px solid #ddd;
+                   padding: 10px;
+               }
+
+               table tbody tr {
+                   border-bottom: 1px solid #ddd;
+               }
+
+               table tbody td {
+                   padding: 10px;
+                   border: 1px solid #ddd;
+                   text-align: center;
+               }
+
+               table tbody tr:hover {
+                   background-color: #f9f9f9;
+               }
+       table tbody td:nth-child(2) {
+           min-width: 500px;
+           text-align: center; /* 텍스트를 왼쪽 정렬로 변경 */
+           word-wrap: break-word; /* 텍스트가 길어질 경우 줄바꿈 처리 */
+       }
+
+               /* 버튼 스타일 */
+               .opti {
+                   padding: 10px 15px;
+                font-size: 1rem;
+          background-color: rgba(212, 167, 217, 0.55) !important;
+
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+               }
+
+               .opti:hover {
+                   background-color: #555;
+               }
+
+               /* 버튼 컨테이너 위치 */
+
+        .write{
+        left:30%;
+        position:relative;
+       }
+
+
+    </style>
+
+</head>
+<body>
+<div layout:fragment="content">
+
+<div class="write">
+
+  <h1>
+    글 작성하기
+  </h1>
+
+  <table class="table table-hover table-striped text-center" style="border: 1px solid; width:1000px;">
+
+    <thead>
+
+    </thead>
+    <tbody>
+
+<form action="/board/write" method="post">
+  <!-- CSRF 토큰 추가 -->
+   <tr> <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /></tr>
+   <tr>  <label for="subject">글 제목</label>&nbsp;<input type="text" placeholder="제목" id="subject" name="subject" style="width: 593px"
+    required><br><br></tr>
+
+    <tr>
+        <label for="name">작성자</label>
+        &nbsp;&nbsp;
+        <input type="text" id="name" name="name" style="width: 80px"
+               th:value="${username}" readonly>
+        <br><br>
+    </tr>
+
+
+
+    <tr> <label for="password">비밀번호</label>&nbsp; <input type="password" id="password" name="password" style="width: 78px"
+                                                   required><br><br></tr>
+
+    <tr> <textarea id="content" placeholder="내용을 입력하세요" name="content" rows="10" cols="90" required></textarea><br><br></tr>
+
+<tr>
+  <button type="submit" class="opti">작성 완료</button>
+</form>
+</tr>
+    </tbody>
+  </table>
+
+</div>
+
+
+</div>
+</body>
+</html>

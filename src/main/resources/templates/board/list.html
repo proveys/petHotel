@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<th:block layout:fragment="script">
+
+</th:block>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <title>게시판</title>
+
+
+        <style>
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        /* 중앙 정렬 및 타이틀 스타일 */
+        h1.text-center {
+            text-align: center;
+            font-size: 2rem;
+            margin: 20px 0;
+        }
+
+
+        /* 테이블 스타일 */
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        table thead th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tbody td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+table tbody td:nth-child(2) {
+    min-width: 500px;
+    text-align: center; /* 텍스트를 왼쪽 정렬로 변경 */
+    word-wrap: break-word; /* 텍스트가 길어질 경우 줄바꿈 처리 */
+}
+
+        /* 버튼 스타일 */
+        .opti button {
+            padding: 10px 15px;
+         font-size: 1rem;
+   background-color: rgba(212, 167, 217, 0.55) !important;
+
+         color: white;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+        }
+
+        .opti button:hover {
+            background-color: #555;
+        }
+
+        /* 버튼 컨테이너 위치 */
+        .opti {
+            display: flex;
+            justify-content: flex-end;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination a:hover {
+    background-color: #333;
+    color: white;
+}
+
+.pagination a.active {
+    background-color: #d94e20;
+    color: white;
+    font-weight: bold;
+}
+
+.pagination .prev,
+.pagination .next {
+    font-weight: bold;
+}
+    </style>
+
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="text-center"><a href="#"}>게시판</a> </h1>
+<br>
+    <br>
+
+    <table class="table table-hover table-striped text-center" style="border: 1px solid; width:1000px;">
+        <thead>
+        <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>등록일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="post : ${posts}">
+            <td th:text="${post.number}"></td>
+            <td>
+                <a th:href="@{/board/{id}(id=${post.number})}" th:text="${post.subject}"></a>
+            </td>
+            <td th:text="${post.name}"></td>
+            <td th:text="${T(java.time.format.DateTimeFormatter).ofPattern('yyyy-MM-dd HH:mm:ss').format(post.regTime)}"></td>
+
+        </tr>
+
+
+<tr>
+        </tbody>
+    </table>
+        <div class="opti" style="position:absolute; right:23.5%;">
+
+         <button onclick="location.href='/board/write'">작성</button>
+
+
+        </div>
+    <div class="pagination">
+        <a href="#" class="prev" th:if="${currentPage > 1}" th:href="@{/board?page=${currentPage - 1}}">이전</a>
+        <span th:each="page : ${pageNumbers}">
+            <a th:href="@{/board?page=${page}}" th:text="${page}" th:classappend="${page == currentPage} ? 'active' : ''"></a>
+        </span>
+        <a href="#" class="next" th:if="${currentPage < totalPages}" th:href="@{/board?page=${currentPage + 1}}">다음</a>
+    </div>
+
+
+</div>
+
+</body>
+
+  <script>
+
+//게시글 작성
+      function createPost() {
+       const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+       const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+       const postData = {
+           subject: document.getElementById("subject").value,
+           content: document.getElementById("content").value,
+           name: document.getElementById("name").value
+           password: document.getElementById("password").value
+       };
+
+       fetch("/board/write", {
+           method: "POST",
+           headers: {
+               "Content-Type": "application/json",
+               [csrfHeader]: csrfToken // CSRF 토큰 추가
+           },
+           body: JSON.stringify(postData)
+       })
+       .then(response => {
+           if (response.ok) {
+               alert("게시글이 등록되었습니다.");
+               window.location.reload();
+           } else {
+               throw new Error("게시글 등록 실패");
+           }
+       })
+       .catch(error => console.error("Error:", error));
+   }
+
+
+
+
+  </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <title>예약 상세 정보</title>
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+</head>
+<body>
+<h2>예약 상세 정보</h2>
+<p>예약 ID: <span th:text="${reservation.id}"></span></p>
+<p>사용자 ID: <span th:text="${reservation.userId}"></span></p>
+<p>객실 ID: <span th:text="${reservation.roomId}"></span></p>
+<p>체크인 날짜: <span th:text="${reservation.checkinDate}"></span></p>
+<p>체크아웃 날짜: <span th:text="${reservation.checkoutDate}"></span></p>
+<p>총 금액: <span th:text="${reservation.totalPrice}"></span></p>
+<button th:onclick="'processRefund(' + ${reservation.id} + ')'">환불 처리</button>
+</body>
+<script>
+  function processRefund(reservationId) {
+      const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+      if (confirm("이 예약을 환불하시겠습니까?")) {
+          fetch(`/admin/reservations/cancel/${reservationId}`, {
+              method: "POST",
+              headers: {
+                  [csrfHeader]: csrfToken,
+                  'Content-Type': 'application/json'
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert("환불이 완료되었습니다.");
+                  window.close();
+              } else {
+                  response.text().then(text => alert("오류: " + text));
+              }
+          })
+          .catch(error => {
+              console.error("Error:", error);
+              alert("환불 처리 중 문제가 발생했습니다.");
+          });
+      }
+  }
+</script>
+</html>

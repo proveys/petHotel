@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
+
+  <title>객실 선택 및 결제</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+    .header {
+        background-color: #ffffff;
+        border-bottom: 2px solid #ddd;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .header a {
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 16px;
+        color: #333;
+        padding-bottom: 5px;
+    }
+    .header a.active {
+        border-bottom: 2px solid #ff4081; /* 분홍색 밑줄 */
+        color: #ff4081;
+    }
+    .container {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .room-card {
+        display: flex;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        background-color : #fff;
+        box-shadow : 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .room-card img {
+        width: 150px;
+        height: auto;
+        object-fit : cover;
+        border-right : 1px solid #ddd;
+    }
+    .room-info {
+        padding: 15px;
+        flex: 1;
+        position: relative;
+    }
+
+    .room-info h5 {
+      font-size : 18px;
+      font-weight: bold;
+      margin-bottom : 10px;
+    }
+
+    .room-info p {
+      margin : 5px 0;
+      font-size: 14px;
+      color : #555;
+    }
+
+    .guest-input {
+      width : 40px;
+      text-align : center;
+      border: 1px solid #ddd;
+      border-radius : 4px;
+      padding : 5px;
+    }
+
+
+    .room-price {
+        text-align: right;
+        padding: 15px;
+        display : flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+    }
+
+    .room-price p {
+      margin : 5px 0;
+      font-size : 16px;
+      font-weight : bold;
+      color : #ff4081;
+    }
+
+    .btn-primary {
+      background-color : #ff4081;
+      color : white;
+      border : none;
+      padding : 10px;
+      border-radius : 5px;
+      font-size : 14px;
+      font-weight : bold;
+      transition : all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+    background-color: #e63971;
+    }
+
+    .payment-section {
+      position: sticky;
+      bottom: 0;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-section h5 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .payment-section .btn-next {
+      background-color: #ff4081;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .payment-section .btn-next:hover {
+      background-color: #e63971;
+    }
+
+    .btn-pink {
+        background-color: #ff4081;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+<div class="header">
+  <h1>예약 시스템</h1>
+  <nav>
+    <a href="/reservation/list/view">예약현황</a>
+    <a href="#" class="active">예약하기</a>
+  </nav>
+</div>
+
+<div class="container">
+  <h2>애견펜션 & 카페</h2>
+  <p>주소: 인천 부평구 어디기 어디 <button class="btn btn-link">지도 보기</button></p>
+  <p>연락처: 010-1234-5678</p>
+  <p>결제 방법: 카카오 페이</p>
+
+  <hr>
+
+  <h3>숙박 기간</h3>
+  <div class="d-flex justify-content-between align-items-center">
+    <div class="w-25">
+      <label for="checkin">입실일</label>
+      <input type="date" id="checkin" class="form-control">
+    </div>
+    <button id="nights-button" class="btn btn-pink">0박</button>
+    <div class="w-25">
+      <label for="checkout">퇴실일</label>
+      <input type="date" id="checkout" class="form-control">
+    </div>
+  </div>
+</div>
+
+  <hr>
+
+<div class="container">
+  <h3>객실 선택</h3>
+
+  <!-- Room 101 -->
+  <div class="room-card">
+    <img src="https://www.lotteresort.com/static/upload/images/20221219/738ac016-8071-4d0d-9f9c-ba5ecfa93e95.jpg" alt="101호">
+    <div class="room-info">
+      <h5>101호</h5>
+      <p>기준 2명, 최대 3명<br>거실+객실 / 16평</p>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">성인</label>
+        <input type="number" id="adult-101" class="guest-input" min="0" max="3" value="0">
+      </div>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">아동</label>
+        <input type="number" id="child-101" class="guest-input" min="0" max="3" value="0">
+      </div>
+      <button class="btn btn-primary w-100" onclick="selectRoom('101')">선택</button>
+    </div>
+    <div class="room-price">
+      <p>234,000원</p>
+    </div>
+  </div>
+
+  <!-- Room 102 -->
+  <div class="room-card">
+    <img src="data:image/jpeg;base64,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" alt="102호">
+    <div class="room-info">
+      <h5>102호</h5>
+      <p>기준 4명, 최대 5명<br>거실+객실 / 24평</p>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">성인</label>
+        <input type="number" id="adult-102" class="guest-input" min="0" max="5" value="0">
+      </div>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">아동</label>
+        <input type="number" id="child-102" class="guest-input" min="0" max="5" value="0">
+      </div>
+      <button class="btn btn-primary w-100" onclick="selectRoom('102')">선택</button>
+    </div>
+    <div class="room-price">
+      <p>324,000원</p>
+    </div>
+  </div>
+
+  <!-- Room 201 -->
+  <div class="room-card">
+    <img src="#" alt="201호">
+    <div class="room-info">
+      <h5>201호</h5>
+      <p>기준 2명, 최대 3명<br>거실+객실 / 16평</p>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">성인</label>
+        <input type="number" id="adult-201" class="guest-input" min="0" max="3" value="0">
+      </div>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">아동</label>
+        <input type="number" id="child-201" class="guest-input" min="0" max="3" value="0">
+      </div>
+      <button class="btn btn-primary w-100" onclick="selectRoom('201')">선택</button>
+    </div>
+    <div class="room-price">
+      <p>234,000원</p>
+    </div>
+  </div>
+
+  <!-- Room 202 -->
+  <div class="room-card">
+    <img src="#" alt="202호">
+    <div class="room-info">
+      <h5>202호</h5>
+      <p>기준 4명, 최대 5명<br>거실+객실 / 24평</p>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">성인</label>
+        <input type="number" id="adult-202" class="guest-input" min="0" max="5" value="0">
+      </div>
+      <div class="d-flex align-items-center mb-2">
+        <label class="me-2">아동</label>
+        <input type="number" id="child-202" class="guest-input" min="0" max="5" value="0">
+      </div>
+      <button class="btn btn-primary w-100" onclick="selectRoom('202')">선택</button>
+    </div>
+    <div class="room-price">
+      <p>324,000원</p>
+    </div>
+  </div>
+</div>
+
+    <div class="payment-section">
+      <h5 id="total-price">총 결제 금액: 0원</h5>
+      <button id="payment-button" class="btn btn-success" onclick="processPayment()">예약하기</button>
+    </div>
+
+<script>
+  let totalPrice = 0;
+  let selectedRoom = null;
+  let nights = 0;
+  let userId = null;
+
+  const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+
+const roomData = {
+    '101': { price: 234000, maxGuests: 3 },
+    '102': { price: 324000, maxGuests: 5 },
+    '201': { price: 234000, maxGuests: 3 },
+    '202': { price: 324000, maxGuests: 5 },
+};
+
+function updateGuests(roomId, type, change) {
+    const inputId = `${type}-${roomId}`;
+    const input = document.getElementById(inputId);
+    const newValue = Math.max(0, parseInt(input.value) + change);
+    input.value = newValue;
+
+    const totalGuests =
+        parseInt(document.getElementById(`adult-${roomId}`).value) +
+        parseInt(document.getElementById(`child-${roomId}`).value);
+
+    if (totalGuests > roomData[roomId].maxGuests) {
+        alert(`입실 가능한 최대 인원은 ${roomData[roomId].maxGuests}명입니다.`);
+        input.value = Math.max(0, newValue - change);
+    }
+}
+
+function selectRoom(roomId) {
+    selectedRoom = roomId;
+    calculateNights();
+    updateTotalPrice();
+}
+
+function calculateNights() {
+    const checkinInput = document.getElementById('checkin');
+    const checkoutInput = document.getElementById('checkout');
+    const nightsButton = document.getElementById('nights-button');
+
+    const checkinDate = new Date(checkinInput.value);
+    const checkoutDate = new Date(checkoutInput.value);
+
+    if (checkinInput.value && checkoutInput.value) {
+        if (checkoutDate <= checkinDate) {
+            nightsButton.textContent = "날짜를 확인하세요";
+            nightsButton.classList.add('btn-warning');
+            nightsButton.classList.remove('btn-pink');
+            return;
+        }
+
+        nights = Math.ceil((checkoutDate - checkinDate) / (1000 * 60 * 60 * 24));
+        nightsButton.textContent = `${nights}박`;
+        nightsButton.classList.add('btn-pink');
+        nightsButton.classList.remove('btn-warning');
+    } else {
+        nightsButton.textContent = "0박";
+        nightsButton.classList.add('btn-warning');
+        nightsButton.classList.remove('btn-pink');
+    }
+
+    if (selectedRoom) {
+        updateTotalPrice();
+    }
+}
+
+function updateTotalPrice() {
+    const totalPriceElement = document.getElementById('total-price');
+    if (!selectedRoom || nights === 0) {
+        totalPriceElement.textContent = "총 결제 금액: 0원";
+        totalPrice = 0;
+        return;
+    }
+    totalPrice = roomData[selectedRoom].price * nights;
+    totalPriceElement.textContent = `총 결제 금액: ${totalPrice.toLocaleString()}원`;
+}
+
+function fetchUserInfo() {
+    return fetch('/members/user-info')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('사용자 정보를 가져오지 못했습니다.');
+            }
+            return response.json();
+        })
+        .then(userInfo => {
+            userId = userInfo.id;
+            console.log("로그인한 사용자 ID:", userId);
+        })
+        .catch(error => {
+            console.error("사용자 정보 요청 중 오류 발생:", error);
+            alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+        });
+}
+
+function processPayment() {
+    var token = $("meta[name='_csrf']").attr("content");
+    var header = $("meta[name='_csrf_header']").attr("content");
+
+    var checkinDate = $("#checkin").val();
+    var checkoutDate = $("#checkout").val();
+    var nights = Math.ceil((new Date(checkoutDate) - new Date(checkinDate)) / (1000 * 60 * 60 * 24));
+    var roomId = selectedRoom;
+    var totalPrice = roomData[roomId].price * nights;
+
+    if (!roomId || nights <= 0) {
+        alert("객실과 숙박 기간을 올바르게 선택하세요.");
+        return;
+    }
+
+    var IMP = window.IMP;
+    IMP.init('imp63523172'); // 아임포트 가맹점 코드
+
+    IMP.request_pay({
+        pg: "kakaopay.TC0ONETIME",
+        merchant_uid: 'reservation_' + new Date().getTime(),
+        name: `객실 ${roomId} 예약 (${nights}박)`,
+        amount: totalPrice,
+        buyer_email: userId + '@example.com', // 예시 이메일
+        buyer_name: '구매자 이름', // 구매자 이름
+        buyer_tel: '010-1234-5678' // 구매자 전화번호
+    }, function (rsp) {
+        if (rsp.success) {
+            var orderData = {
+                userId: userId,
+                roomId: roomId,
+                checkinDate: checkinDate,
+                checkoutDate: checkoutDate,
+                nights: nights,
+                adultCount: parseInt($("#adult-" + roomId).val()), // 괄호 닫음
+                childCount: parseInt($("#child-" + roomId).val()), // 괄호 닫음
+                imp_uid: rsp.imp_uid,
+                amount: totalPrice
+            };
+
+            $.ajax({
+                url: "/reservation/payment",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(orderData),
+                beforeSend: function (xhr) {
+                    console.log("CSRF 헤더 : ", header);
+                    console.log("CSRF 토큰 : ", token);
+
+                    xhr.setRequestHeader(header, token);
+
+                },
+                success: function (response) {
+                    console.log("서버로부터 성공 응답을 받았습니다.");
+                    alert("예약 및 결제가 완료되었습니다.");
+                    location.href = '/api/reservations/complete';
+                },
+                error: function (request, status, error) {
+                    alert(" gateWay Search code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                    if (request.status === 401) {
+                        alert("로그인 후 이용해주세요.");
+                        location.href = '/members/login';
+                    } else {
+                        alert("결제는 성공했으나 예약 처리가 실패했습니다.");
+                    }
+                }
+            });
+        } else {
+            alert("결제 실패: " + rsp.error_msg);
+        }
+    });
+}
+
+
+let isSubmitting = false; // 중복 요청 방지 플래그
+
+document.addEventListener('DOMContentLoaded', function () {
+    fetchUserInfo();
+
+    const checkinInput = document.getElementById('checkin');
+    const checkoutInput = document.getElementById('checkout');
+    const paymentButton = document.getElementById('payment-button');
+
+    if (!checkinInput || !checkoutInput || !paymentButton) {
+        console.error("필수 요소가 누락되었습니다. HTML 구조를 확인하세요.");
+        return;
+    }
+
+    checkinInput.addEventListener('change', calculateNights);
+    checkoutInput.addEventListener('change', calculateNights);
+
+    // 중복 리스너 방지
+    paymentButton.removeEventListener('click', processPayment);
+    paymentButton.addEventListener('click', () => {
+        if(!isSubmitting) {
+            isSubmitting = true;  // 중복 클릭 방지
+            processPayment(); // 올바른 함수 호출
+            isSubmitting = false; // 플래그 초기화
+        }
+    });
+});
+
+</script>
+</div>
+</body>
+</html>

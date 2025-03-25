@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+
+<head>
+
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+  <title>챗봇상담</title>
+  <style>
+    body {
+         font-family: 'Arial', sans-serif;
+         margin: 0;
+         padding: 0;
+
+
+         height: 100vh;
+     }
+
+.ch{
+  position:relative;
+        height:1000px;
+}
+
+     #chatContainer {  justify-content: center; /* 가로 방향 중앙 정렬 */
+         align-items: center; /* 세로 방향 중앙 정렬 */
+         position:fixed;
+         left:40%;
+         width: 360px;
+         background-color: white;
+         border-radius: 12px;
+         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+         overflow: hidden;
+     }
+
+     #chatHeader {
+         background-color: #f05a24;
+         color: white;
+         padding: 10px 15px;
+         text-align: center;
+         font-size: 1.2rem;
+         font-weight: bold;
+     }
+
+     #chatbox {
+         height: 400px;
+         padding: 15px;
+         overflow-y: auto;
+         background-color: #f9f9f9;
+     }
+
+     #chatbox p {
+         margin: 10px 0;
+         display: flex;
+         align-items: flex-start;
+     }
+
+     #chatbox p strong {
+         margin-right: 8px;
+     }
+
+     #chatbox .user {
+         justify-content: flex-end;
+     }
+
+     #chatbox .user strong {
+         color: #007bff;
+     }
+
+     #chatbox .bot {
+         justify-content: flex-start;
+     }
+
+     #chatbox .bot strong {
+         color: #4bc8ee;
+     }
+
+     #chatFooter {
+         display: flex;
+         padding: 10px;
+         border-top: 1px solid #ccc;
+         background-color: #fff;
+     }
+
+     #userInput {
+         flex: 1;
+         padding: 10px;
+         font-size: 1rem;
+         border: 1px solid #ccc;
+         border-radius: 5px;
+         margin-right: 8px;
+     }
+
+     #sendButton {
+         padding: 10px 15px;
+         font-size: 1rem;
+         background-color: #4bc8ee;
+         color: white;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+     }
+
+     #sendButton:hover {
+         background-color: #d94e20;
+     }
+  </style>
+
+</head>
+<body>
+<div layout:fragment="content">
+  <p></p>
+  <div class="ch">
+
+<div id="chatContainer">
+  <div id="chatHeader">챗봇 상담사</div>
+  <div id="chatbox"></div>
+  <div id="chatFooter">
+    <input type="text" id="userInput" placeholder="메시지를 입력하세요" />
+    <button id="sendButton">전송</button>
+  </div>
+</div>
+</div>
+  </div>
+<th:block layout:fragment="script">
+  <script src="js/chat.js"></script>
+</th:block>
+
+</body>
+</html>

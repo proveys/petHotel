@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<th:block layout:fragment="script">
+  <script th:inline="javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=7849bcea44b20537b9e3db503f0162d3&libraries=services,clusterer,drawing">
+  </script>
+</th:block>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동물병원 검색</title>
+  <style>
+    #map {
+        width: 100%;
+        height: 400px;
+        margin-top: 20px;
+        border: 1px solid #ddd;
+        position: relative; /* 지도 내에서 위치 조정 */
+    }
+
+    /* 도로명 주소와 지번 주소가 지도 바로 아래에 고정 */
+    .location p {
+        font-size: 20px;
+        color: #929292;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    /* 아이콘과 "오시는 방법" 텍스트는 지도 아래에서 떨어지도록 배치 */
+    .subject {
+        position: relative;
+        text-align: center;
+        margin-top: 40px; /* 지도 아래에서 떨어지게 하기 위해 여백 추가 */
+    }
+
+    /* 아이콘 크기 및 위치 */
+    .subject img {
+        width: 30px;  /* 아이콘 크기 */
+        margin-bottom: 10px;  /* 아이콘과 텍스트 사이 여백 */
+    }
+
+    /* "오시는 방법" 텍스트 스타일 */
+    .subject h2 {
+        font-size: 30px;
+        font-weight: 500;
+    }
+
+    .subject p {
+        font-size: 18px;
+        color: #929292;
+    }
+
+    #banner h2 {
+    font-size: 28px;
+    font-weight: 500;
+    font-family: "Gamja Flower", serif;
+  }
+
+  /* "Welcome to TheJoEun Pet Hotel"의 글씨 크기 16px */
+  #banner h3 {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+    #banner {
+        width: 100%;
+        background-color: #f0f0f0;
+        padding: 20px 0;
+        text-align: center;
+        margin-top: 40px; /* "오시는 방법" 텍스트와 아이콘과 겹치지 않게 여백 추가 */
+    }
+
+    #banner .button {
+    display: inline-block;
+    background-color: #FFD700; /* 노란색 배경 */
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: 2px;
+}
+
+#banner .button:hover {
+    background-color: #343434; /* 다크그레이 배경 */
+}
+  </style>
+
+
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="subject">
+    <div class="detail">
+      <img src="http://www.seorakgarden.com/img/m3.png">
+      <h2> 호텔 위치 </h2>
+      <p> Hotel Location </p>
+    </div>
+  </div>
+  <p>아래 지도에서 동물병원을 검색하세요.</p>
+  <div class="option">
+    <div>
+      <form onsubmit="searchHospitals(); return false;">
+        지역 : <input type="text" id="keyword" size="15">
+        <button type="submit">검색하기</button>
+      </form>
+    </div>
+  </div>
+  <div id="map"></div>
+  <div class="location">
+    <p><span>[도로명 주소] 인천 부평구 경원대로 1366 7층 더조은컴퓨터아카데미 인천캠퍼스</span></p>
+    <p><span>[지번 주소] 부평동 534-48</span></p>
+  </div>
+
+  <div class="subject">
+    <div class="detail">
+    <img src="http://www.seorakgarden.com/img/m3.png">
+    <h2> 오시는 방법</h2>
+      <p>대중 교통 이용 시 : 지하철 1호선 부평역 5번 출구에서 도보로 약 7분 거리에 위치하고 있습니다.<br>
+        지하상가 출구 16번 출구에서 직진 하셔서 MGC COFFEE 건물 7층에 위치하고 있습니다<br>
+        (버스 노선 정보는 네이버 지도 또는 카카오맵에서 확인하세요.)</p>
+      <p> <br> </p>
+      <p> 자동차 이용 시 : "더조은아카데미 인천점" 을 검색하셔서 오실 수 있습니다.</p>
+    </div>
+  </div>
+
+  <section id="banner">
+    <div class="banner-in">
+      <div>
+        <h2><b><mark>TheJoEun Pet Hotel</mark></b></h2>
+        <h3><b>Welcome to TheJoEun Pet Hotel.</b></h3>
+        <p><b>더조은 애견 호텔을 방문해주시고 찾아주시는 여러분들 환영합니다.</b></p>
+        <a href="/reservation/view" target="_blank">
+          <div class="button">RESERVATION</div>
+        </a>
+      </div>
+    </div>
+  </section>
+  <script>
+    var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+    var mapContainer = document.getElementById('map'),
+        mapOption = {
+            center: new kakao.maps.LatLng(37.491527, 126.721512), // 서울 중심
+            level: 3
+        };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    var ps = new kakao.maps.services.Places();
+
+    function searchHospitals() {
+        var keyword = document.getElementById('keyword').value;
+
+        if (!keyword) {
+            alert("지역을 입력해주세요!");
+            return;
+        }
+
+        ps.keywordSearch(keyword, function(data, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                var center = new kakao.maps.LatLng(data[0].y, data[0].x);
+                map.setCenter(center);
+
+                searchNearbyHospitals(center);
+            } else {
+                alert("지역을 찾을 수 없습니다. 다시 입력해주세요.");
+            }
+        });
+    }
+
+    function searchNearbyHospitals(center) {
+        ps.keywordSearch('동물병원', function(data, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                var bounds = new kakao.maps.LatLngBounds();
+
+                for (var i = 0; i < data.length; i++) {
+                    displayHospitalMarker(data[i]);
+                    bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+                }
+
+                map.setBounds(bounds);
+            } else {
+                alert("주변 동물병원을 찾을 수 없습니다.");
+            }
+        }, {
+            location: center,
+            radius: 5000 // 반경 5000m
+        });
+    }
+
+    function displayHospitalMarker(place) {
+        var marker = new kakao.maps.Marker({
+            map: map,
+            position: new kakao.maps.LatLng(place.y, place.x)
+        });
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+            var content = '<div style="padding:5px; text=center">' +
+                          '<strong>' + place.place_name + '</strong><br>' +
+                          (place.phone ? '전화번호: ' + place.phone + '<br>' : '') +
+                          (place.place_url ? '<a href="' + place.place_url + '" target="_blank">상세보기</a>' : '') +
+                          '</div>';
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+        });
+    }
+
+    // 원하는 위치에 마커 추가
+    function addCustomMarker(lat, lng, title) {
+        var position = new kakao.maps.LatLng(lat, lng);
+
+        var marker = new kakao.maps.Marker({
+            position: position,
+            map: map
+        });
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+            var content = `<div style="padding:5px; text-align:center;">
+                             <strong>${title}</strong>
+                           </div>`;
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+        });
+    }
+
+    // 예제: 원하는 위치에 마커 추가하기
+    addCustomMarker(37.491527, 126.721512, '애견 호텔');
+  </script>
+</div>
+</body>
+</html>

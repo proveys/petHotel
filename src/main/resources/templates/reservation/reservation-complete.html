@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>예약 확인</title>
+  <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+  <script>
+    Kakao.init('16baa1ae0217d4af9436ced16df4abef'); // 발급받은 JavaScript 키
+    console.log(Kakao.isInitialized()); //SDk 초기화 여부 확인
+  </script>
+  <style>
+    body {
+        font-family : 'Arial', sans-serif;
+        margin : 0;
+        padding : 0;
+        background-color : #f4f6f8;
+        text-align : center;
+    }
+
+    header {
+        background-color : #3f51b5;
+        color : white;
+        padding : 20px 0;
+        font-size : 24px;
+    }
+
+    .container {
+        margin : 30px auto;
+        padding : 20px;
+        max-width : 600px;
+        background : white;
+        border-radius : 8px;
+        box-shadow : 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .container h2 {
+        color : #333;
+    }
+
+    .container p {
+        font-size : 16px;
+        color : #555;
+        line-height : 1.6;
+    }
+
+    .btn {
+        display : inline-block;
+        margin-top : 20px;
+        padding : 12px 24px;
+        background-color : #ffdd00;
+        color : black;
+        text-decoration : none;
+        border-radius : 5px;
+        font-weight : bold;
+    }
+
+    .btn:hover {
+        background-color : #ffd700;
+    }
+
+    footer {
+        margin-top : 40px;
+        font-size : 14px;
+        color : #aaa;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+<header>
+  예약 확인 페이지
+</header>
+
+<div class="container">
+  <h2>예약이 완료되었습니다!</h2>
+  <p><strong>예약 날짜:</strong>
+    <span id="reservationDate" th:text="${reservation?.checkinDate ?: '체크인 날짜 없음'} + ' ~ ' + ${reservation?.checkoutDate ?: '체크아웃 날짜 없음'}"></span>
+  </p>
+  <p><strong>예약 객실:</strong>
+    <span id="reservationRoom" th:text="${reservation?.roomId ?: '객실 정보 없음'}"></span>
+  </p>
+  <p><strong>성인 :</strong>
+    <span id="adultCount" th:text="${reservation?.adultCount ?: 0}"></span>명
+  </p>
+  <p><strong>아동 :</strong>
+    <span id="childCount" th:text="${reservation?.childCount ?: 0}"></span>명
+  </p>
+  <p><strong>총 결제 금액 :</strong>
+    <span id="totalPrice" th:text="${reservation?.totalPrice ?: 0}"></span>원
+  </p>
+  <p>예약 상세 정보를 카카오톡으로 공유해보세요.</p>
+  <a href="#" class="btn" onclick="sendReservationMessage()">카카오톡으로 공유하기</a>
+</div>
+
+<footer>
+  &copy; 2025 예약 서비스
+</footer>
+
+<script>
+  function sendReservationMessage() {
+      //HTML 에서 데이터를 가져옴
+      const reservationDate = document.getElementById('reservationDate').textContent;
+      const reservationRoom = document.getElementById('reservationRoom').textContent;
+      const adultCount = document.getElementById('adultCount').textContent;
+      const childCount = document.getElementById('childCount').textContent;
+      const totalPrice = document.getElementById('totalPrice').textContent;
+
+      // 카카오톡 메시지를 보냄
+      Kakao.Link.sendDefault({
+          objectType : 'feed',
+          content : {
+              title : '예약이 완료되었습니다!',
+              description : `날짜 : ${reservationDate}, 객실 : ${reservationRoom}, 성인 : ${adultCount}명, 아동 : ${childCount}명, 금액 : ${totalPrice}원`,
+               imageUrl: 'https://via.placeholder.com/300',
+              link : {
+                  mobileWebUrl : 'https://example.com/reservation-details',
+                  webUrl : 'https://example.com/reservation-details',
+              }
+          },
+          buttons : [
+              {
+                  title : '예약 상세 보기',
+                  link : {
+                      mobileWebUrl : 'https://example.com/reservation-details',
+                      webUrl : 'https://example.com/reservation-details',
+                  }
+              }
+          ]
+      });
+  }
+</script>
+</div>
+</body>
+</html>
