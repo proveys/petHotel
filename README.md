@@ -21,17 +21,37 @@
 ## 🛠 사용 기술
 
 ### ⚙️ 백엔드
+
+**언어 및 프레임워크**
 - Java 21  
 - Spring Boot 3.4.1  
-- Spring Security  
-- JPA (Hibernate)  
+- Spring Security (인증 및 권한 관리)  
+- Spring Data JPA (데이터 접근 계층)
+
+**데이터베이스**
 - MySQL  
-- Validation  
+- H2 Database (테스트용)
+
+**실시간 통신**
+- WebSocket (실시간 채팅)
+
+**인증 및 권한**
+- OAuth2 (소셜 로그인)  
+- JWT (토큰 기반 인증)
 
 ### 💻 프론트엔드
-- HTML5 / CSS3 / JavaScript  
-- Thymeleaf  
-- Bootstrap  
+
+**템플릿 엔진**
+- Thymeleaf
+
+**웹 기술**
+- HTML5  
+- CSS3  
+- JavaScript  
+- jQuery
+
+**UI 프레임워크**
+- Bootstrap 5
 
 ### 🛠 기타
 - Lombok  
